@@ -589,9 +589,61 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        -- ts_ls = {},
-        --
+        ts_ls = {
+          settings = {
+            typescript = {
+              inlayHints = {
+                includeInlayParameterNameHints = 'all',
+                includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+                includeInlayFunctionParameterTypeHints = true,
+                includeInlayVariableTypeHints = true,
+                includeInlayPropertyDeclarationTypeHints = true,
+                includeInlayFunctionReturnTypeHints = true,
+                includeInlayEnumMemberValueHints = true,
+              },
+            },
+            javascript = {
+              inlayHints = {
+                includeInlayParameterNameHints = 'all',
+                includeInlayParameterNameHintsWhenArgumentMatchesName = false,
+                includeInlayFunctionParameterTypeHints = true,
+                includeInlayVariableTypeHints = true,
+                includeInlayPropertyDeclarationTypeHints = true,
+                includeInlayFunctionReturnTypeHints = true,
+                includeInlayEnumMemberValueHints = true,
+              },
+            },
+          },
+        },
 
+        -- ESLint language server
+        eslint = {
+          settings = {
+            workingDirectories = { mode = 'auto' },
+          },
+        },
+
+        -- Tailwind CSS language server
+        tailwindcss = {
+          settings = {
+            tailwindCSS = {
+              experimental = {
+                classRegex = {
+                  'tw`([^`]*)',
+                  'tw"([^"]*)',
+                  'tw{"([^"}]*)',
+                  'tw\\.\\w+`([^`]*)',
+                  'tw\\(.*?\\)`([^`]*)',
+                },
+              },
+            },
+          },
+        },
+
+        -- Typos LSP for spell checking
+        typos_lsp = {},
+
+        -- Lua language server
         lua_ls = {
           -- cmd = { ... },
           -- filetypes = { ... },
@@ -685,42 +737,49 @@ require('lazy').setup({
     },
   },
 
-  { -- Autocompletion
+  { -- Autocompletion Engine: blink.cmp
+    -- blink.cmp is a modern completion plugin that provides intelligent code completion
+    -- It integrates with LSP servers to provide context-aware suggestions
     'saghen/blink.cmp',
-    event = 'VimEnter',
-    version = '1.*',
+    event = 'VimEnter', -- Load the plugin when Neovim starts
+    version = '1.*', -- Use the latest stable version 1.x
     dependencies = {
-      -- Snippet Engine
+      -- Snippet Engine: LuaSnip
+      -- LuaSnip provides snippet expansion capabilities for code templates
       {
         'L3MON4D3/LuaSnip',
-        version = '2.*',
+        version = '2.*', -- Use version 2.x for latest features
         build = (function()
-          -- Build Step is needed for regex support in snippets.
-          -- This step is not supported in many windows environments.
-          -- Remove the below condition to re-enable on windows.
+          -- Build Step: Compile regex support for advanced snippet features
+          -- This enables more complex snippet patterns and transformations
+          -- Skip compilation on Windows or if 'make' is not available
           if vim.fn.has 'win32' == 1 or vim.fn.executable 'make' == 0 then
             return
           end
           return 'make install_jsregexp'
         end)(),
         dependencies = {
-          -- `friendly-snippets` contains a variety of premade snippets.
-          --    See the README about individual language/framework/plugin snippets:
-          --    https://github.com/rafamadriz/friendly-snippets
-          -- {
-          --   'rafamadriz/friendly-snippets',
-          --   config = function()
-          --     require('luasnip.loaders.from_vscode').lazy_load()
-          --   end,
-          -- },
+          -- Friendly Snippets: Pre-made snippet collection
+          -- Contains thousands of snippets for various languages and frameworks
+          {
+            'rafamadriz/friendly-snippets',
+            config = function()
+              -- Load VSCode-style snippets from friendly-snippets
+              -- This gives us React hooks, components, and JavaScript patterns
+              require('luasnip.loaders.from_vscode').lazy_load()
+            end,
+          },
         },
-        opts = {},
+        opts = {}, -- Use default LuaSnip configuration
       },
+      -- LazyDev: Enhanced Lua development for Neovim config
       'folke/lazydev.nvim',
     },
     --- @module 'blink.cmp'
     --- @type blink.cmp.Config
     opts = {
+      -- KEYMAP CONFIGURATION
+      -- Defines how you interact with the completion menu
       keymap = {
         -- 'default' (recommended) for mappings similar to built-in completions
         --   <c-y> to accept ([y]es) the completion.
@@ -747,29 +806,162 @@ require('lazy').setup({
 
         -- For more advanced Luasnip keymaps (e.g. selecting choice nodes, expansion) see:
         --    https://github.com/L3MON4D3/LuaSnip?tab=readme-ov-file#keymaps
+        -- CUSTOM NAVIGATION KEYBINDINGS
+        -- <C-j> and <C-k> for more intuitive up/down navigation (like Vim motions)
+        ['<C-j>'] = { 'select_next', 'fallback' }, -- Move to next completion item
+        ['<C-k>'] = { 'select_prev', 'fallback' }, -- Move to previous completion item
+
+        -- DOCUMENTATION SCROLLING
+        -- Navigate through long documentation without leaving insert mode
+        ['<C-u>'] = { 'scroll_documentation_up', 'fallback' }, -- Scroll docs up
+        ['<C-d>'] = { 'scroll_documentation_down', 'fallback' }, -- Scroll docs down
+
+        -- SNIPPET NAVIGATION
+        -- Enhanced Tab behavior for snippet jumping
+        ['<Tab>'] = { 'snippet_forward', 'fallback' }, -- Jump to next snippet placeholder
+        ['<S-Tab>'] = { 'snippet_backward', 'fallback' }, -- Jump to previous snippet placeholder
       },
 
+      -- APPEARANCE CONFIGURATION
+      -- Controls how the completion menu looks and feels
       appearance = {
         -- 'mono' (default) for 'Nerd Font Mono' or 'normal' for 'Nerd Font'
         -- Adjusts spacing to ensure icons are aligned
+        -- Use 'mono' variant for consistent icon alignment with Nerd Font Mono
         nerd_font_variant = 'mono',
-      },
 
-      completion = {
-        -- By default, you may press `<c-space>` to show the documentation.
-        -- Optionally, set `auto_show = true` to show the documentation after a delay.
-        documentation = { auto_show = false, auto_show_delay_ms = 500 },
-      },
-
-      sources = {
-        default = { 'lsp', 'path', 'snippets', 'lazydev' },
-        providers = {
-          lazydev = { module = 'lazydev.integrations.blink', score_offset = 100 },
+        -- CUSTOM ICONS FOR COMPLETION TYPES
+        -- Each completion type gets a unique icon for better visual distinction
+        kind_icons = {
+          Text = '󰉿', -- Plain text completions
+          Method = '󰆧', -- Class methods
+          Function = '󰊕', -- Functions
+          Constructor = '', -- Class constructors
+          Field = '󰜢', -- Object fields/properties
+          Variable = '󰀫', -- Variables
+          Class = '󰠱', -- Classes
+          Interface = '', -- TypeScript interfaces
+          Module = '', -- ES6 modules, imports
+          Property = '󰜢', -- Object properties
+          Unit = '󰑭', -- Measurement units
+          Value = '󰎠', -- Literal values
+          Enum = '', -- Enumerations
+          Keyword = '󰌋', -- Language keywords (if, for, etc.)
+          Snippet = '', -- Code snippets
+          Color = '󰏘', -- Color values (#hex, rgb, etc.)
+          File = '󰈙', -- File paths
+          Reference = '󰈇', -- References to other symbols
+          Folder = '󰉋', -- Directory paths
+          EnumMember = '', -- Enum values
+          Constant = '󰏿', -- Constants
+          Struct = '󰙅', -- Data structures
+          Event = '', -- Event handlers
+          Operator = '󰆕', -- Operators (+, -, *, etc.)
+          TypeParameter = '', -- Generic type parameters
         },
       },
 
-      snippets = { preset = 'luasnip' },
+      -- COMPLETION BEHAVIOR CONFIGURATION
+      completion = {
+        -- By default, you may press `<c-space>` to show the documentation.
+        -- Optionally, set `auto_show = true` to show the documentation after a delay.
 
+        -- DOCUMENTATION WINDOW SETTINGS
+        documentation = {
+          auto_show = true, -- Automatically show documentation for selected item
+          auto_show_delay_ms = 200, -- Show docs after 200ms (faster than default 500ms)
+          window = {
+            max_width = 80, -- Maximum width of documentation window
+            max_height = 20, -- Maximum height of documentation window
+            border = 'rounded', -- Use rounded borders for modern look
+            scrollbar = true, -- Show scrollbar for long documentation
+          },
+        },
+
+        -- COMPLETION MENU SETTINGS
+        menu = {
+          border = 'rounded', -- Rounded borders for the completion menu
+          scrollbar = true, -- Show scrollbar when many items
+          draw = {
+            treesitter = { 'lsp' }, -- Use treesitter for syntax highlighting in LSP items
+            columns = {
+              { 'kind_icon' }, -- Show icon in first column
+              { 'label', 'label_description', gap = 2 }, -- Show label and description with 1 space gap
+              { 'source_name', 'kind', gap = 2 },
+            },
+          },
+        },
+
+        -- GHOST TEXT CONFIGURATION
+        -- Shows a preview of the completion inline as you type
+        ghost_text = {
+          enabled = false, -- Enable ghost text preview
+        },
+      },
+
+      -- COMPLETION SOURCES CONFIGURATION
+      -- Defines where completion suggestions come from
+      sources = {
+        -- DEFAULT SOURCES (used for most file types)
+        -- Order matters: earlier sources get higher priority
+        default = { 'lsp', 'path', 'snippets', 'buffer', 'lazydev' },
+
+        -- PROVIDER-SPECIFIC CONFIGURATION
+        providers = {
+          -- LazyDev: Enhanced Lua completion for Neovim development
+          lazydev = {
+            module = 'lazydev.integrations.blink',
+            score_offset = 100, -- Give LazyDev suggestions higher priority
+          },
+
+          -- BUFFER SOURCE: Completions from current and other open buffers
+          buffer = {
+            min_keyword_length = 2, -- Only suggest words with 2+ characters
+            max_items = 5, -- Limit buffer suggestions to prevent noise
+          },
+
+          -- PATH SOURCE: File and directory path completions
+          path = {
+            opts = {
+              trailing_slash = false, -- Don't add trailing slash to directories
+              label_trailing_slash = true, -- But show trailing slash in the label
+              get_cwd = function(context)
+                -- Get current working directory relative to the buffer's directory
+                return vim.fn.expand(('#%d:p:h'):format(context.bufnr))
+              end,
+              show_hidden_files_by_default = false, -- Hide dotfiles by default
+            },
+          },
+        },
+
+        -- PER-FILETYPE SOURCE CONFIGURATION
+        -- Customize completion sources based on the file type you're editing
+        per_filetype = {
+          -- Lua files: Include LazyDev for Neovim API completion
+          lua = { 'lazydev', 'lsp', 'path', 'snippets', 'buffer' },
+
+          -- TypeScript files: Focus on LSP and snippets
+          typescript = { 'lsp', 'path', 'snippets', 'buffer' },
+
+          -- React TypeScript files: Same as TypeScript
+          typescriptreact = { 'lsp', 'path', 'snippets', 'buffer' },
+
+          -- JavaScript files: Focus on LSP and snippets
+          javascript = { 'lsp', 'path', 'snippets', 'buffer' },
+
+          -- React JavaScript files: Same as JavaScript
+          javascriptreact = { 'lsp', 'path', 'snippets', 'buffer' },
+
+          -- CSS files: Include LSP for property completion
+          css = { 'lsp', 'path', 'snippets', 'buffer' },
+
+          -- HTML files: Include LSP for tag and attribute completion
+          html = { 'lsp', 'path', 'snippets', 'buffer' },
+
+          -- JSON files: Include LSP for schema validation
+          json = { 'lsp', 'path', 'snippets', 'buffer' },
+        },
+      },
       -- Blink.cmp includes an optional, recommended rust fuzzy matcher,
       -- which automatically downloads a prebuilt binary when enabled.
       --
@@ -777,10 +969,53 @@ require('lazy').setup({
       -- the rust implementation via `'prefer_rust_with_warning'`
       --
       -- See :h blink-cmp-config-fuzzy for more information
-      fuzzy = { implementation = 'lua' },
 
-      -- Shows a signature help window while you type arguments for a function
-      signature = { enabled = true },
+      -- SNIPPET INTEGRATION CONFIGURATION
+      snippets = {
+        preset = 'luasnip', -- Use LuaSnip as the snippet engine
+
+        -- SNIPPET EXPANSION FUNCTION
+        -- Called when a snippet completion is selected
+        expand = function(snippet)
+          require('luasnip').lsp_expand(snippet) -- Expand the snippet using LuaSnip
+        end,
+
+        -- SNIPPET ACTIVITY DETECTION
+        -- Determines if we're currently inside a snippet
+        active = function(filter)
+          if filter and filter.direction then
+            -- Check if we can jump in the specified direction
+            return require('luasnip').jumpable(filter.direction)
+          end
+          -- Check if we're currently in any snippet
+          return require('luasnip').in_snippet()
+        end,
+
+        -- SNIPPET JUMPING FUNCTION
+        -- Called when Tab/Shift-Tab is pressed to navigate snippet placeholders
+        jump = function(direction)
+          require('luasnip').jump(direction) -- Jump to next/previous placeholder
+        end,
+      },
+
+      -- FUZZY MATCHING CONFIGURATION
+      -- Controls how completion items are filtered and ranked
+      fuzzy = {
+        implementation = 'rust', -- Use fzf algorithm for better performance and accuracy
+        -- max_items = 200, -- Limit total completion items to prevent slowdown
+        max_typos = 0,
+        sorts = { 'label', 'kind', 'score' }, -- Sort by label, then kind, then relevance score
+      },
+
+      -- SIGNATURE HELP CONFIGURATION
+      -- Shows function signatures and parameter information
+      signature = {
+        enabled = true, -- Enable signature help
+        window = {
+          border = 'rounded', -- Use rounded borders for consistency
+          scrollbar = false, -- Signature help is usually short, no scrollbar needed
+        },
+      },
     },
   },
   {
