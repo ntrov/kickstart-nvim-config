@@ -4,7 +4,8 @@
 -- See the kickstart.nvim README for more information
 
 return {
-  require 'custom.plugins.github-copilot',
-  --  require 'custom.plugins.copilot-chat',
+  require 'custom.plugins.harpoon',
   require 'custom.plugins.codecompanion',
+  require 'custom.plugins.nvim-colorizer',
+  require 'custom.plugins.smear_cursor',
 }

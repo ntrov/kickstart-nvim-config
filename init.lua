@@ -1003,8 +1003,7 @@ require('lazy').setup({
       fuzzy = {
         implementation = 'rust', -- Use fzf algorithm for better performance and accuracy
         -- max_items = 200, -- Limit total completion items to prevent slowdown
-        max_typos = 0,
-        sorts = { 'label', 'kind', 'score' }, -- Sort by label, then kind, then relevance score
+        sorts = { 'score', 'sort_text', 'label' }, -- Sort by label, then kind, then relevance score
       },
 
       -- SIGNATURE HELP CONFIGURATION
@@ -1020,6 +1019,13 @@ require('lazy').setup({
   },
   {
     'catppuccin/nvim',
+    priority = 1000,
+    config = function()
+      vim.cmd.colorscheme 'catppuccin-frappe'
+    end,
+  },
+  {
+    'Mofiqul/dracula.nvim',
     priority = 1000,
     config = function()
       vim.cmd.colorscheme 'catppuccin-frappe'
