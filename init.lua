@@ -1019,16 +1019,12 @@ require('lazy').setup({
   },
   {
     'catppuccin/nvim',
-    priority = 1000,
-    config = function()
-      vim.cmd.colorscheme 'catppuccin-frappe'
-    end,
   },
   {
     'Mofiqul/dracula.nvim',
     priority = 1000,
     config = function()
-      vim.cmd.colorscheme 'catppuccin-frappe'
+      vim.cmd.colorscheme 'dracula'
     end,
   },
   { -- You can easily change to a different colorscheme.
