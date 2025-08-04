@@ -8,4 +8,5 @@ return {
   require 'custom.plugins.codecompanion',
   require 'custom.plugins.nvim-colorizer',
   require 'custom.plugins.smear_cursor',
+  require 'custom.plugins.tiny-inline-diagnostics',
 }
