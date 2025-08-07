@@ -9,4 +9,5 @@ return {
   require 'custom.plugins.nvim-colorizer',
   require 'custom.plugins.smear_cursor',
   require 'custom.plugins.tiny-inline-diagnostics',
+  require 'custom.plugins.ts-error-translator',
 }
