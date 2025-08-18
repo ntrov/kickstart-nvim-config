@@ -539,7 +539,7 @@ require('lazy').setup({
       vim.diagnostic.config {
         severity_sort = true,
         float = { border = 'rounded', source = 'if_many' },
-        underline = { severity = vim.diagnostic.severity.ERROR },
+        underline = true,
         signs = vim.g.have_nerd_font and {
           text = {
             [vim.diagnostic.severity.ERROR] = '󰅚 ',
@@ -563,6 +563,15 @@ require('lazy').setup({
         },
       }
 
+      local function link_undercurl(group, base)
+        local fg = vim.api.nvim_get_hl(0, { name = base }).fg
+        vim.api.nvim_set_hl(0, group, { undercurl = true, sp = fg })
+      end
+
+      link_undercurl('DiagnosticUnderlineError', 'DiagnosticError')
+      link_undercurl('DiagnosticUnderlineWarn', 'DiagnosticWarn')
+      link_undercurl('DiagnosticUnderlineInfo', 'DiagnosticInfo')
+      link_undercurl('DiagnosticUnderlineHint', 'DiagnosticHint')
       -- LSP servers and clients are able to communicate to each other what features they support.
       --  By default, Neovim doesn't support everything that is in the LSP specification.
       --  When you add blink.cmp, luasnip, etc. Neovim now has *more* capabilities.
