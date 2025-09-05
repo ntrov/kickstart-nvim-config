@@ -10,4 +10,5 @@ return {
   -- require 'custom.plugins.smear_cursor',
   require 'custom.plugins.tiny-inline-diagnostics',
   require 'custom.plugins.ts-error-translator',
+  require 'custom.plugins.supermaven-nvim',
 }
